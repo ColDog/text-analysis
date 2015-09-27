@@ -1,19 +1,4 @@
 from TwitterAPI import TwitterAPI
-from textblob import TextBlob
-
-
-class TraderResult:
-    def __init__(self, tweets):
-        self.tweets = tweets
-
-    def analyze_sentiment(self):
-        polarity = []
-        for twt in self.tweets:
-            polarity.append(TextBlob(twt).sentiment.polarity)
-        try:
-            return sum(polarity) / float(len(polarity))
-        except ZeroDivisionError:
-            return 0
 
 
 class Trader:
@@ -45,13 +30,4 @@ class Trader:
         return influentials
 
     def get_tweets(self, symbol, name, until=None):
-        twts = self.search(symbol, name, None, until) + self.influential_tweets(symbol, name, until)
-        print ' '
-        print 'TWEETS-----'
-        print twts
-        return TraderResult(twts)
-
-
-trader = Trader()
-goog = trader.get_tweets('$goog', 'google', '2015-09-25')
-print goog.analyze_sentiment()
+        return self.search(symbol, name, None, until) + self.influential_tweets(symbol, name, until)
