@@ -1,7 +1,7 @@
 from TwitterAPI import TwitterAPI
 
 
-class Trader:
+class Twitter:
     def __init__(self):
         self.api = TwitterAPI(
             'LmACQX3XV1c9rA05MfYVbB9OG',
