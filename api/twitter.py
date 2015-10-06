@@ -1,6 +1,8 @@
 from TwitterAPI import TwitterAPI
+from utils.singleton import singleton
 
 
+@singleton
 class Twitter:
     def __init__(self):
         self.api = TwitterAPI(
@@ -13,21 +15,19 @@ class Twitter:
             'CNBC', 'RANsquawk', 'the_real_fly', 'Wsjmarkets', 'Business'
         )
 
-    def search(self, symbol, name, user=None, until=None):
+    def search(self, symbol, name, user=None):
         q = symbol + ' OR ' + name
         if user:
             q += ' from:' + user
-        if until:
-            q += ' until:' + until
         req = self.api.request('search/tweets', {'q': q, 'count': 100})
         return [twt['text'] for twt in req]
 
-    def influential_tweets(self, symbol, name, until=None):
+    def influential_tweets(self, symbol, name):
         influentials = []
         for user in self.influential:
-            req = self.search(symbol, name, user, until)
+            req = self.search(symbol, name, user)
             influentials += req
         return influentials
 
-    def get_tweets(self, symbol, name, until=None):
-        return self.search(symbol, name, None, until) + self.influential_tweets(symbol, name, until)
+    def text(self, symbol, name):
+        return self.search(symbol, name) + self.influential_tweets(symbol, name)

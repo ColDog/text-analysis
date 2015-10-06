@@ -1,6 +1,9 @@
 import requests
+from utils.singleton import singleton
+from utils.today import today
 
 
+@singleton
 class Times:
     def __init__(self):
         self.article_key = '0ef62d9d804001c734eac1302721ec36:7:68950361'
@@ -13,10 +16,10 @@ class Times:
         req = requests.get(url, params=params)
         return req.json()
 
-    def search(self, q, from_date, to_date):
+    def search(self, q):
         return self.get_article(
             'http://api.nytimes.com/svc/search/v2/articlesearch.json',
-            {'from-date': from_date.replace('-', ''), 'to-date': to_date.replace('-', ''), 'q': q}
+            {'from-date': today().replace('-', ''), 'to-date': today().replace('-', ''), 'q': q}
         )
 
     def most_popular(self):
@@ -26,8 +29,12 @@ class Times:
         )
         return [story.get('headline') for story in req.json().get('results', [])]
 
-    def get_stories(self, q, from_date, to_date):
-        res = self.search(q, from_date, to_date).get('response', {})
+    def get_stories(self, symbol, name):
+        q = symbol + 'OR' + name
+        res = self.search(q).get('response', {})
         return [
             '%s %s' % (story.get('abstract'), story.get('headline', {}).get('main')) for story in res.get('docs', [])
         ]
+
+    def text(self, symbol, name):
+        return self.get_stories(symbol, name) + self.most_popular()

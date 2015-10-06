@@ -1,6 +1,9 @@
 import requests
+from utils.singleton import singleton
+from utils.today import today
 
 
+@singleton
 class Guardian:
     def __init__(self):
         self.api_key = '8amqwrxyxuhvb8zyvearzv66'
@@ -12,9 +15,13 @@ class Guardian:
         req = requests.get(url, params=params)
         return req.json()
 
-    def search(self, q, from_date, to_date):
-        return self.get('http://content.guardianapis.com/search', {'from-date': from_date, 'to-date': to_date, 'q': q})
+    def search(self, q):
+        return self.get('http://content.guardianapis.com/search', {'from-date': today(), 'to-date': today(), 'q': q})
 
-    def get_stories(self, q, from_date, to_date):
-        res = self.search(q, from_date, to_date).get('response', {})
+    def get_stories(self, symbol, name):
+        q = symbol + 'OR' + name
+        res = self.search(q).get('response', {})
         return [story.get('webTitle') for story in res.get('results', [])]
+
+    def text(self, symbol, name):
+        return self.get_stories(symbol, name)

@@ -1,64 +1,18 @@
 from flask import Flask, request
-from api.guardian import Guardian
-from api.twitter import Twitter
-from api.times import Times
-from datetime import datetime
-from text.analysis import analyze_list
-import redis
+from data.data import get_data
+from utils.today import now
 
-redis_db = redis.StrictRedis(host='localhost', port=6379, db=0)
-twitter = Twitter()
-guardian = Guardian()
-times = Times()
-app = Flask(__name__, static_url_path='')
+app = Flask(__name__)
 
 
-def today():
-    d = datetime.now()
-    return '%s-%s-%s' % (d.year, d.month, d.day)
-
-
-def get_data(symbol, name, from_date, to_date):
-    g = guardian.get_stories(name, from_date, to_date)
-    t = twitter.get_tweets(symbol, name, to_date)
-    ts = times.get_stories(name, from_date, to_date)
-    if from_date == today():
-        ts += times.most_popular()
-    return g + t + ts
-
-
-def data(symbol, name, from_date, to_date):
-    return analyze_list(get_data(symbol, name, from_date, to_date))
-
-
-def redis_name(sym, name, from_date, to_date):
-    return 'ticker:%s-name:%s-from:%s-to:%s' % (sym, name, from_date, to_date)
-
-
-def respond(sym, from_date, to_date):
-    name = request.args.get('name', sym)
-    cached = redis_db.get(redis_name(sym, name, from_date, to_date))
-    if cached:
-        return cached
-    else:
-        val = str(data(sym, name, from_date, to_date))
-        redis_db.set(redis_name(sym, name, from_date, to_date), val)
-        return val
-
-
-@app.route('/')
-def root():
-    return app.send_static_file('index.html')
-
-
-@app.route('/ticker/<sym>/today')
+@app.route('/<sym>/now')
 def ticker_today(sym):
-    return respond(sym, today(), today())
+    return get_data(sym, now())
 
 
-@app.route('/ticker/<sym>/from/<from_date>/to/<to_date>')
-def ticker_date(sym, from_date, to_date):
-    return respond(sym, from_date, to_date)
+@app.route('/<sym>/<time>')
+def ticker_time(sym, time):
+    return get_data(sym, time)
 
 
 app.run(debug=True)
