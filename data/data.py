@@ -1,9 +1,9 @@
 from api.guardian import Guardian
 from api.twitter import Twitter
 from api.times import Times
-from utils.app_redis import Redis
-from utils.today import now
+from utils import Redis, now
 import json
+from config import *
 
 
 def redis_name(symb, time):
@@ -11,11 +11,11 @@ def redis_name(symb, time):
 
 
 def get_data(symbol, time):
-    lookup = Redis().get(redis_name(symbol, time))
-    if lookup:
-        return lookup
-    else:
-        return Data(symbol).process()
+    if CACHING:
+        lookup = Redis().get(redis_name(symbol, time))
+        if lookup:
+            return lookup
+    return Data(symbol).process()
 
 
 class Data:
@@ -31,8 +31,17 @@ class Data:
         self.collect()
         self.filter()
         self.analyze()
+        self.log()
         self.save()
         return self.to_json()
+
+    def log(self):
+        if LOGGING:
+            for line in self.data:
+                print(line)
+            print(' ')
+            print('sentiment:', self.sentiment)
+            print('relevance:', self.relevance)
 
     def collect(self):
         name = Redis().hmget('symbols', self.symbol)

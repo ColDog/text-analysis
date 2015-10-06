@@ -1,4 +1,4 @@
-from utils.app_redis import Redis
+from utils import Redis
 import requests
 
 

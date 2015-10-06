@@ -1,6 +1,5 @@
 import requests
-from utils.singleton import singleton
-from utils.today import today
+from utils import singleton, today
 
 
 @singleton

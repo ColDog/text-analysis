@@ -1,5 +1,5 @@
 from TwitterAPI import TwitterAPI
-from utils.singleton import singleton
+from utils import singleton
 
 
 @singleton
