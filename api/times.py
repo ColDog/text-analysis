@@ -29,11 +29,5 @@ class Times:
     def get_stories(self, q, from_date, to_date):
         res = self.search(q, from_date, to_date).get('response', {})
         return [
-            '%s %s %s %s %s' % (
-                story.get('lead_paragraph'),
-                story.get('snippet'),
-                story.get('abstract'),
-                story.get('abstract'),
-                story.get('headline', {}).get('main'))
-            for story in res.get('docs', [])
+            '%s %s' % (story.get('abstract'), story.get('headline', {}).get('main')) for story in res.get('docs', [])
         ]

@@ -13,6 +13,8 @@ def analyze_list(list_of_words):
     scores = []
     for words in list_of_words:
         score = keyword(words)
+        print(' ')
+        print(score, sentiment(words), words)
         if score > 0:
             scores.append(score * sentiment(words))
     return avg(scores)

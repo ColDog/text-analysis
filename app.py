@@ -24,11 +24,11 @@ def get_data(symbol, name, from_date, to_date):
     ts = times.get_stories(name, from_date, to_date)
     if from_date == today():
         ts += times.most_popular()
-    print(' ')
-    print(' ')
-    for words in g + t + ts:
-        print(words)
-    return analyze_list(g + t + ts)
+    return g + t + ts
+
+
+def data(symbol, name, from_date, to_date):
+    return analyze_list(get_data(symbol, name, from_date, to_date))
 
 
 def redis_name(sym, name, from_date, to_date):
@@ -41,7 +41,7 @@ def respond(sym, from_date, to_date):
     if cached:
         return cached
     else:
-        val = str(get_data(sym, name, from_date, to_date))
+        val = str(data(sym, name, from_date, to_date))
         redis_db.set(redis_name(sym, name, from_date, to_date), val)
         return val
 
